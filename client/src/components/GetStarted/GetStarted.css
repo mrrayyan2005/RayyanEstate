@@ -1,0 +1,21 @@
+.inner-container {
+    gap: 1.5rem;
+    background: white; /* Keeping white background */
+    padding: 2rem;
+    border-radius: 10px;
+    border: 4px solid rgba(255, 255, 255, 0.14);
+    text-align: center;
+    align-items: center;
+  }
+  .inner-container:hover {
+    background: #ffeff5; /* Pinkish Hover */
+  }
+  .inner-container > h1 {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  .inner-container > button {
+    border-radius: 10px;
+  }
+  

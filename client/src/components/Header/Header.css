@@ -1,0 +1,54 @@
+.h-wrapper {
+  z-index: 99;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  width: 100%;
+  background-color: #181825; /* Dark Blue */
+  position: sticky;
+}
+
+.h-container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  color: var(--secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.h-menu {
+  display: flex;
+  gap: 2rem;
+  color: #ff85a2;
+}
+
+.h-menu > *:hover {
+  cursor: pointer;
+  color: white; /* Pinkish Hover */
+}
+
+.menu-icon {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
+  }
+
+  .h-menu {
+    position: absolute;
+    top: 3rem;
+    right: 4rem;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    color: #181825;
+    border-radius: 10px;
+    padding: 3rem;
+    gap: 2rem;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+    transition: all 200ms ease;
+  }
+}
