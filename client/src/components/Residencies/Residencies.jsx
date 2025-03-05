@@ -1,15 +1,17 @@
 import React from "react";
-import data from "../../utils/slider.json";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 import PropertyCard from "../../PropertyCard/PropertyCard";
-// Import Swiper styles
-import {PuffLoader} from 'react-spinners'
+import { PuffLoader } from "react-spinners";
 import "swiper/css";
 import "./Residencies.css";
 import { sliderSettings } from "../../utils/common";
 import useProperties from "../../hooks/useProperties";
+
 const Residencies = () => {
   const { data, isError, isLoading } = useProperties();
+
+  console.log("Residencies data:", data); // Debugging the API response
+
   if (isError) {
     return (
       <div className="wrapper">
@@ -21,16 +23,11 @@ const Residencies = () => {
   if (isLoading) {
     return (
       <div className="wrapper flexCenter" style={{ height: "60vh" }}>
-        <PuffLoader
-          height="80"
-          width="80"
-          radius={1}
-          color="#4066ff"
-          aria-label="puff-loading"
-        />
+        <PuffLoader height="80" width="80" radius={1} color="#4066ff" aria-label="puff-loading" />
       </div>
     );
   }
+
   return (
     <div id="residencies" className="r-wrapper">
       <div className="paddings innerWidth r-container">
@@ -38,14 +35,20 @@ const Residencies = () => {
           <span className="orangeText">Best Choices</span>
           <span className="primaryText">Popular Residencies</span>
         </div>
+
         <Swiper {...sliderSettings}>
           <SlideNextButton />
-          {/* slider */}
-          {data.slice(0,8).map((card, i) => (
-            <SwiperSlide key={i}>
-              <PropertyCard card={card}/>
-            </SwiperSlide>
-          ))}
+
+          {/* Ensure data is an array before mapping */}
+          {Array.isArray(data) ? (
+            data.slice(0, 8).map((card, i) => (
+              <SwiperSlide key={i}>
+                <PropertyCard card={card} />
+              </SwiperSlide>
+            ))
+          ) : (
+            <p className="error-text">No properties available.</p>
+          )}
         </Swiper>
       </div>
     </div>
