@@ -105,20 +105,14 @@ export const api = axios.create({
       throw e;
     }
   };
-  export const getAllFav = async (email, token) => {
-    if (!token) return; 
+export const getAllFav = async (email, token) => {
+    if (!token) return [];
     try {
-        const res = await api.post(
-            `/user/allFav`,
-            { email },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        console.log("Fetched Favorites:", res.data); // Debugging
-        return res.data["favResidenciesID"] || [];  // Ensure it returns an array
-
-    } catch (e) {
-        console.error("Error fetching favs:", e);
+        const res = await api.post("/user/allFav", { email }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return res.data?.favResidenciesID || []; // Ensure it returns an array
+    } catch (error) {
         toast.error("Something went wrong while fetching favs");
         return []; // Return empty array to prevent undefined issues
     }
