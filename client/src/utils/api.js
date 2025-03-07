@@ -121,7 +121,7 @@ export const getAllFav = async (email) => {
         }
 
         console.log("Fetched Favorites:", res.data);
-        return res.data.favResidenciesID || [];  // Ensure an array is returned
+        return res.data.favResidenciesID ? res.data.favResidenciesID : []; // Ensure an array is returned
 
     } catch (error) {
         console.error("Error fetching favorites:", error);
@@ -134,25 +134,26 @@ export const getAllFav = async (email) => {
   
   
   
-  export const getAllBookings = async (email, token) => {
+ export const getAllBookings = async (email, token) => {
     if (!token) return;
-  
+
     try {
-      const res = await api.post(
-        `/user/allBookings`,
-        { email },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      console.log("Fetched Bookings:",res.data);
-      return res.data["bookedVisits"] || []; // ✅ Return an empty array if no bookings exist
+        const res = await api.post(
+            `/user/allBookings`,
+            { email },
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        console.log("Fetched Bookings:", res.data);
+        return res.data.bookedVisits ? res.data.bookedVisits : []; // Return an empty array if no bookings exist
     } catch (error) {
-      console.error("Error fetching favs:", e);
-      toast.error("Something went wrong while fetching bookings");
-      return []; // ✅ Return an empty array on error
+        console.error("Error fetching bookings:", error); // ✅ Fixed incorrect variable name
+        toast.error("Something went wrong while fetching bookings");
+        return []; // ✅ Return an empty array on error
     }
-  };
+};
+
   
   export const createResidency = async (data, token) => {
     console.log(data)
