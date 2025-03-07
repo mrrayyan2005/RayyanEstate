@@ -12,7 +12,7 @@ import useBookings from "../../hooks/useBookings";
 function Layout() {
   useFavourites();
   useBookings();
-  const { isAuthenticated, user, getAccessTokenSilently, getAccessTokenWithPopup } = useAuth0();
+  const { isAuthenticated, user, getAccessTokenSilently, loginWithRedirect } = useAuth0();
   const { setUserDetails } = useContext(UserDetailContext);
 
   const { mutate } = useMutation({
@@ -39,7 +39,7 @@ function Layout() {
 
         let token;
         try {
-          // Try fetching the token silently (without a popup)
+          // Try fetching the token silently
           token = await getAccessTokenSilently({
             authorizationParams: {
               audience: "http://localhost:8000",
@@ -47,15 +47,16 @@ function Layout() {
             },
           });
         } catch (silentError) {
-          console.warn("Silent token fetch failed, trying popup method...", silentError);
+          console.warn("Silent token fetch failed. Redirecting to login...", silentError);
 
-          // If silent fetch fails, use the popup method
-          token = await getAccessTokenWithPopup({
+          // Redirect to login if silent token retrieval fails
+          await loginWithRedirect({
             authorizationParams: {
               audience: "http://localhost:8000",
               scope: "openid profile email",
             },
           });
+          return; // Stop execution after redirect
         }
 
         console.log("Token received:", token);
@@ -72,7 +73,7 @@ function Layout() {
     if (isAuthenticated) {
       getTokenAndRegister();
     }
-  }, [isAuthenticated, user]); 
+  }, [isAuthenticated, user, getAccessTokenSilently, loginWithRedirect]); 
 
   return (
     <>
