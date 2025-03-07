@@ -105,18 +105,31 @@ export const api = axios.create({
       throw e;
     }
   };
-export const getAllFav = async (email, token) => {
-    if (!token) return [];
+export const getAllFav = async (email) => {
+    if (!email) {
+        console.error("Missing email, cannot fetch favorites.");
+        return []; // Return empty array to prevent errors
+    }
+
     try {
-        const res = await api.post("/user/allFav", { email }, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return res.data?.favResidenciesID || []; // Ensure it returns an array
+        const res = await api.post(`/user/allFav`, { email });
+
+        if (!res || !res.data) {
+            console.error("Invalid response from server:", res);
+            toast.error("Unexpected server response");
+            return [];
+        }
+
+        console.log("Fetched Favorites:", res.data);
+        return res.data.favResidenciesID || [];  // Ensure an array is returned
+
     } catch (error) {
-        toast.error("Something went wrong while fetching favs");
-        return []; // Return empty array to prevent undefined issues
+        console.error("Error fetching favorites:", error);
+        toast.error("Something went wrong while fetching favorites");
+        return []; // Prevent undefined errors
     }
 };
+
 
   
   
