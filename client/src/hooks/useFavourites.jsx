@@ -18,6 +18,9 @@ const useFavourites = () => {
       if (data) {
         setUserDetails((prev) => ({ ...prev, favourites: data })); // Store in context
       }
+    },
+    onError: (error) => {
+      console.error("Error fetching favorites:", error);
     }
   });
 
@@ -27,7 +30,7 @@ const useFavourites = () => {
     if (data) {
       setUserDetails((prev) => ({ ...prev, favourites: data })); // Update UI
     }
-  }, [data]);
+  }, [data, setUserDetails]);
 
   return { data, isError, isLoading, refetch };
 };
