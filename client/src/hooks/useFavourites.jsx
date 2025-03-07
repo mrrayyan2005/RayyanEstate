@@ -11,8 +11,8 @@ const useFavourites = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allFavourites", user?.email],
-    queryFn: () => getAllFav(user?.email, userDetails?.token),
-    enabled: !!user && !!userDetails?.token, // Fetch only if user & token exist
+    queryFn: () => getAllFav(user?.email), // ✅ Removed token from function call
+    enabled: !!user, // ✅ Fetch as long as user exists (no need for token)
     staleTime: 30000, // Cache for 30 seconds
     onSuccess: (data) => {
       if (data) {
