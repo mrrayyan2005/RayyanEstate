@@ -22,8 +22,8 @@ const useBookings = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allBookings", user?.email],
-    queryFn: fetchBookings, // ✅ Updated function call
-    enabled: !!user, // ✅ Fetch only if user exists
+    queryFn: fetchBookings, // ✅ Ensuring token is always fresh
+    enabled: !!user, // ✅ Query only runs if user exists
     staleTime: 30000, // Cache results for 30 seconds
     onSuccess: (data) => {
       setUserDetails((prev) => ({ ...prev, bookings: data })); // ✅ Store in context
