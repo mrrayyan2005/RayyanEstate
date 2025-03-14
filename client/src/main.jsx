@@ -3,22 +3,22 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { MantineProvider } from "@mantine/core";
-import {Auth0Provider} from "@auth0/auth0-react"
+import { Auth0Provider } from "@auth0/auth0-react";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Auth0Provider
-  domain="dev-7q83fq2272cfxooq.us.auth0.com"
-  clientId="h95tnO3RQiwWDj2UYAFhwrTSAVJ1uARZ"
-  authorizationParams={{
-    redirect_uri: "https://rayyan-estate.vercel.app/callback",
-  }}
-  audience="http://localhost:8000"  // Update this if your backend is deployed
-  scope="openid profile email"
->
-  <MantineProvider withGlobalStyles withNormalizeCSS>
-    <App />
-  </MantineProvider>
-</Auth0Provider>
-
+      domain="dev-7q83fq2272cfxooq.us.auth0.com"
+      clientId="h95tnO3RQiwWDj2UYAFhwrTSAVJ1uARZ"
+      authorizationParams={{
+        redirect_uri: "https://rayyan-estate.vercel.app", // Corrected
+      }}
+      audience={import.meta.env.VITE_AUTH0_AUDIENCE || "http://localhost:8000"} // Uses environment variable
+      scope="openid profile email"
+    >
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <App />
+      </MantineProvider>
+    </Auth0Provider>
   </React.StrictMode>
 );
