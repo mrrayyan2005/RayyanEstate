@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   authorizationParams={{
     redirect_uri: "https://rayyan-estate.vercel.app/callbacks",
   }}
-  audience="https://rayyan-estate-server.vercel.app/"  // Update this if your backend is deployed
+  audience="http://localhost:8000"  // Update this if your backend is deployed
   scope="openid profile email"
 >
   <MantineProvider withGlobalStyles withNormalizeCSS>
