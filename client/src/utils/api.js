@@ -2,7 +2,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 export const api = axios.create({
-    baseURL: "https://rayyan-estate-server.vercel.app/api",
+    baseURL: "http://localhost:8000/api",
   });
   export const getAllProperties = async () => {
     try {
@@ -109,9 +109,9 @@ export const api = axios.create({
     if (!token) return; 
     try {
         const res = await api.post(
-            /user/allFav,
+            `/user/allFav`,
             { email },
-            { headers: { Authorization: Bearer ${token} } }
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
         console.log("Fetched Favorites:", res.data); // Debugging
@@ -123,7 +123,6 @@ export const api = axios.create({
         return []; // Return empty array to prevent undefined issues
     }
 };
-
 
   
   
