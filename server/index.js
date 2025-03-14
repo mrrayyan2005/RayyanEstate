@@ -11,7 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: ["http://localhost:8000", "https://rayyan-estate.vercel.app"], // Allow frontend
+    credentials: true,  // Allow cookies & authentication headers
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 
 app.listen(PORT, ()=> {
     console.log(`Server is running on http://localhost:${PORT}`);
