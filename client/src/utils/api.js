@@ -1,7 +1,6 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import { getAccessTokenSilently } from "@auth0/auth0-react"; // Import token fetcher
 
 export const api = axios.create({
     baseURL: "https://rayyan-estate-server.vercel.app/api",
@@ -10,13 +9,13 @@ export const api = axios.create({
 /**
  * Fetch token silently and attach it to headers.
  */
-const getAuthHeaders = async () => {
+const getAuthHeaders = async (getAccessTokenSilently) => {
     try {
         const token = await getAccessTokenSilently();
         return { Authorization: `Bearer ${token}` };
     } catch (error) {
         console.error("Error fetching token:", error);
-        return {}; // Return empty headers if token fails
+        return {}; // Return empty headers if token fetch fails
     }
 };
 
@@ -63,9 +62,9 @@ export const getProperty = async (id) => {
 /**
  * Register a new user
  */
-export const createUser = async (email) => {
+export const createUser = async (email, getAccessTokenSilently) => {
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         await api.post("/user/register", { email }, { headers });
     } catch (error) {
         toast.error("Something went wrong, Please try again");
@@ -76,9 +75,9 @@ export const createUser = async (email) => {
 /**
  * Book a visit
  */
-export const bookVisit = async (date, propertyId, email) => {
+export const bookVisit = async (date, propertyId, email, getAccessTokenSilently) => {
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         await api.post(`/user/bookVisit/${propertyId}`, {
             email,
             id: propertyId,
@@ -93,9 +92,9 @@ export const bookVisit = async (date, propertyId, email) => {
 /**
  * Remove booking
  */
-export const removeBooking = async (id, email) => {
+export const removeBooking = async (id, email, getAccessTokenSilently) => {
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         await api.post(`/user/removeBooking/${id}`, { email }, { headers });
     } catch (error) {
         toast.error("Something went wrong, Please try again");
@@ -106,9 +105,9 @@ export const removeBooking = async (id, email) => {
 /**
  * Add to favorites
  */
-export const toFav = async (id, email) => {
+export const toFav = async (id, email, getAccessTokenSilently) => {
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         await api.post(`/user/toFav/${id}`, { email }, { headers });
     } catch (error) {
         throw error;
@@ -118,14 +117,14 @@ export const toFav = async (id, email) => {
 /**
  * Fetch all favorite properties
  */
-export const getAllFav = async (email) => {
+export const getAllFav = async (email, getAccessTokenSilently) => {
     if (!email) {
         console.error("Missing email, cannot fetch favorites.");
         return [];
     }
 
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         const res = await api.post(`/user/allFav`, { email }, { headers });
 
         return res.data?.favResidenciesID || [];
@@ -139,11 +138,11 @@ export const getAllFav = async (email) => {
 /**
  * Fetch all bookings
  */
-export const getAllBookings = async (email) => {
+export const getAllBookings = async (email, getAccessTokenSilently) => {
     if (!email) return [];
 
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         const res = await api.post(`/user/allBookings`, { email }, { headers });
 
         return res.data?.bookedVisits || [];
@@ -157,9 +156,9 @@ export const getAllBookings = async (email) => {
 /**
  * Create a new property listing
  */
-export const createResidency = async (data) => {
+export const createResidency = async (data, getAccessTokenSilently) => {
     try {
-        const headers = await getAuthHeaders();
+        const headers = await getAuthHeaders(getAccessTokenSilently);
         await api.post(`/residency/create`, { data }, { headers });
     } catch (error) {
         throw error;
