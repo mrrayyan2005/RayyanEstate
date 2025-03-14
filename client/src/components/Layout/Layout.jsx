@@ -10,9 +10,9 @@ import useFavourites from "../../hooks/useFavourites";
 import useBookings from "../../hooks/useBookings";
 
 function Layout() {
-  useFavourites();
-  useBookings();
-  
+  useFavourites(); // ✅ Fetch and store user's favorite residencies
+  useBookings(); // ✅ Fetch and store user's booking data
+
   const { isAuthenticated, user, getAccessTokenSilently, loginWithRedirect } = useAuth0();
   const { userDetails, setUserDetails } = useContext(UserDetailContext);
 
