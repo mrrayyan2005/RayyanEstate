@@ -6,29 +6,35 @@ import { getAllFav } from "../utils/api";
 
 const useFavourites = () => {
   const { userDetails, setUserDetails } = useContext(UserDetailContext);
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0(); // ✅ Get token silently
   const queryRef = useRef();
+
+  const fetchFavourites = async () => {
+    if (!user?.email) return []; // Prevent unnecessary API calls
+    try {
+      const token = await getAccessTokenSilently(); // ✅ Fetch token securely
+      return await getAllFav(user.email, token); // ✅ Use token in API call
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      return [];
+    }
+  };
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allFavourites", user?.email],
-    queryFn: () => getAllFav(user?.email), // ✅ Removed token from function call
-    enabled: !!user, // ✅ Fetch as long as user exists (no need for token)
-    staleTime: 30000, // Cache for 30 seconds
+    queryFn: fetchFavourites, // ✅ Updated function call
+    enabled: !!user, // ✅ Ensure query only runs if user exists
+    staleTime: 30000, // Cache results for 30 seconds
     onSuccess: (data) => {
-      if (data) {
-        setUserDetails((prev) => ({ ...prev, favourites: data })); // Store in context
-      }
+      setUserDetails((prev) => ({ ...prev, favourites: data })); // ✅ Persist in context
     },
-    onError: (error) => {
-      console.error("Error fetching favorites:", error);
-    }
   });
 
   queryRef.current = refetch;
 
   useEffect(() => {
     if (data) {
-      setUserDetails((prev) => ({ ...prev, favourites: data })); // Update UI
+      setUserDetails((prev) => ({ ...prev, favourites: data })); // ✅ Ensure UI updates
     }
   }, [data, setUserDetails]);
 
