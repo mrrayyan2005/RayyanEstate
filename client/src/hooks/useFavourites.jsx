@@ -9,14 +9,18 @@ const useFavourites = () => {
   const { user } = useAuth0();
   const queryRef = useRef();
 
+  const token = userDetails?.token; // Ensure token exists
+
+  console.log("🔹 Using token in useFavourites:", token);
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allFavourites", user?.email],
-    queryFn: () => getAllFav(user?.email, userDetails?.token),
-    enabled: !!user && !!userDetails?.token, // Fetch only if user & token exist
-    staleTime: 30000, // Cache for 30 seconds
+    queryFn: () => getAllFav(user?.email, token),
+    enabled: !!user?.email && !!token, // Prevents unnecessary API calls
+    staleTime: 30000,
     onSuccess: (data) => {
       if (data) {
-        setUserDetails((prev) => ({ ...prev, favourites: data })); // Store in context
+        setUserDetails((prev) => ({ ...prev, favourites: data }));
       }
     }
   });
@@ -25,7 +29,7 @@ const useFavourites = () => {
 
   useEffect(() => {
     if (data) {
-      setUserDetails((prev) => ({ ...prev, favourites: data })); // Update UI
+      setUserDetails((prev) => ({ ...prev, favourites: data }));
     }
   }, [data]);
 
