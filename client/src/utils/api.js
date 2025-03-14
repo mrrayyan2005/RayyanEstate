@@ -1,176 +1,167 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import { getAccessTokenSilently } from "@auth0/auth0-react"; // Import token fetcher
+
 export const api = axios.create({
     baseURL: "https://rayyan-estate-server.vercel.app/api",
-  });
-  export const getAllProperties = async () => {
+});
+
+/**
+ * Fetch token silently and attach it to headers.
+ */
+const getAuthHeaders = async () => {
     try {
-      const response = await api.get("/residency/allresd", {
-        timeout: 10 * 1000,
-      });
-  
-      if (response.status === 400 || response.status === 500) {
-        throw response.data;
-      }
-      return response.data;
+        const token = await getAccessTokenSilently();
+        return { Authorization: `Bearer ${token}` };
     } catch (error) {
-      toast.error("Something went wrong");
-      throw error;
+        console.error("Error fetching token:", error);
+        return {}; // Return empty headers if token fails
     }
-  };
-  export const getProperty = async (id) => {
+};
+
+/**
+ * Persist user data after login and refresh.
+ */
+export const persistUser = (user) => {
+    if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+    }
+};
+
+export const getUserFromStorage = () => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+};
+
+/**
+ * Fetch all properties
+ */
+export const getAllProperties = async () => {
     try {
-      const response = await api.get(`/residency/${id}`, {
-        timeout: 10 * 1000,
-      });
-  
-      if (response.status === 400 || response.status === 500) {
-        throw response.data;
-      }
-      return response.data;
+        const response = await api.get("/residency/allresd", { timeout: 10000 });
+        return response.data;
     } catch (error) {
-      toast.error("Something went wrong");
-      throw error;
+        toast.error("Something went wrong");
+        throw error;
     }
-  };
-  export const createUser = async (email, token) => {
+};
+
+/**
+ * Fetch single property details
+ */
+export const getProperty = async (id) => {
     try {
-      await api.post(
-        `/user/register`,
-        { email },{
-          headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        }
-      );
+        const response = await api.get(`/residency/${id}`, { timeout: 10000 });
+        return response.data;
     } catch (error) {
-      toast.error("Something went wrong, Please try again");
-      throw error;
+        toast.error("Something went wrong");
+        throw error;
     }
-  };
-  export const bookVisit = async (date, propertyId, email, token) => {
+};
+
+/**
+ * Register a new user
+ */
+export const createUser = async (email) => {
     try {
-      await api.post(
-        `/user/bookVisit/${propertyId}`,
-        {
-          email,
-          id: propertyId,
-          date: dayjs(date).format("DD/MM/YYYY"),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        const headers = await getAuthHeaders();
+        await api.post("/user/register", { email }, { headers });
     } catch (error) {
-      toast.error("Something went wrong, Please try again");
-      throw error;
+        toast.error("Something went wrong, Please try again");
+        throw error;
     }
-  };
-  export const removeBooking = async (id, email, token) => {
+};
+
+/**
+ * Book a visit
+ */
+export const bookVisit = async (date, propertyId, email) => {
     try {
-      await api.post(
-        `/user/removeBooking/${id}`,
-        {
-          email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        const headers = await getAuthHeaders();
+        await api.post(`/user/bookVisit/${propertyId}`, {
+            email,
+            id: propertyId,
+            date: dayjs(date).format("DD/MM/YYYY"),
+        }, { headers });
     } catch (error) {
-      toast.error("Something went wrong, Please try again");
-  
-      throw error;
+        toast.error("Something went wrong, Please try again");
+        throw error;
     }
-  };
-  export const toFav = async (id, email, token) => {
+};
+
+/**
+ * Remove booking
+ */
+export const removeBooking = async (id, email) => {
     try {
-      await api.post(
-        `/user/toFav/${id}`,
-        {
-          email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    } catch (e) {
-      throw e;
+        const headers = await getAuthHeaders();
+        await api.post(`/user/removeBooking/${id}`, { email }, { headers });
+    } catch (error) {
+        toast.error("Something went wrong, Please try again");
+        throw error;
     }
-  };
+};
+
+/**
+ * Add to favorites
+ */
+export const toFav = async (id, email) => {
+    try {
+        const headers = await getAuthHeaders();
+        await api.post(`/user/toFav/${id}`, { email }, { headers });
+    } catch (error) {
+        throw error;
+    }
+};
+
+/**
+ * Fetch all favorite properties
+ */
 export const getAllFav = async (email) => {
     if (!email) {
         console.error("Missing email, cannot fetch favorites.");
-        return []; // Return empty array to prevent errors
+        return [];
     }
 
     try {
-        const res = await api.post(`/user/allFav`, { email });
+        const headers = await getAuthHeaders();
+        const res = await api.post(`/user/allFav`, { email }, { headers });
 
-        if (!res || !res.data) {
-            console.error("Invalid response from server:", res);
-            toast.error("Unexpected server response");
-            return [];
-        }
-
-        console.log("Fetched Favorites:", res.data);
-        return res.data.favResidenciesID ? res.data.favResidenciesID : []; // Ensure an array is returned
-
+        return res.data?.favResidenciesID || [];
     } catch (error) {
         console.error("Error fetching favorites:", error);
         toast.error("Something went wrong while fetching favorites");
-        return []; // Prevent undefined errors
+        return [];
     }
 };
 
-
-  
-  
-  
- export const getAllBookings = async (email, token) => {
-    if (!token) return;
+/**
+ * Fetch all bookings
+ */
+export const getAllBookings = async (email) => {
+    if (!email) return [];
 
     try {
-        const res = await api.post(
-            `/user/allBookings`,
-            { email },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        );
-        console.log("Fetched Bookings:", res.data);
-        return res.data.bookedVisits ? res.data.bookedVisits : []; // Return an empty array if no bookings exist
+        const headers = await getAuthHeaders();
+        const res = await api.post(`/user/allBookings`, { email }, { headers });
+
+        return res.data?.bookedVisits || [];
     } catch (error) {
-        console.error("Error fetching bookings:", error); // ✅ Fixed incorrect variable name
+        console.error("Error fetching bookings:", error);
         toast.error("Something went wrong while fetching bookings");
-        return []; // ✅ Return an empty array on error
+        return [];
     }
 };
 
-  
-  export const createResidency = async (data, token) => {
-    console.log(data)
-    try{
-      const res = await api.post(
-        `/residency/create`,
-        {
-          data
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-    }catch(error)
-    {
-      throw error
+/**
+ * Create a new property listing
+ */
+export const createResidency = async (data) => {
+    try {
+        const headers = await getAuthHeaders();
+        await api.post(`/residency/create`, { data }, { headers });
+    } catch (error) {
+        throw error;
     }
-  }
+};
