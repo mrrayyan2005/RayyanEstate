@@ -12,68 +12,56 @@ import useBookings from "../../hooks/useBookings";
 function Layout() {
   useFavourites();
   useBookings();
+  
   const { isAuthenticated, user, getAccessTokenSilently, loginWithRedirect } = useAuth0();
-  const { setUserDetails } = useContext(UserDetailContext);
+  const { userDetails, setUserDetails } = useContext(UserDetailContext);
 
   const { mutate } = useMutation({
-    mutationKey: [user?.email],
+    mutationKey: ["registerUser", user?.email],
     mutationFn: (token) => createUser(user?.email, token),
+    onError: (error) => {
+      console.error("User registration failed:", error);
+    },
   });
 
   useEffect(() => {
     const getTokenAndRegister = async () => {
+      if (!user?.email || userDetails?.token) return; // ✅ Prevent unnecessary calls
+
       try {
-        console.log("Fetching access token...");
-        if (!user) {
-          console.log("User object is not available.");
-          return;
-        }
+        let token = localStorage.getItem("access_token");
 
-        // Check if token already exists in localStorage
-        const existingToken = localStorage.getItem("access_token");
-        if (existingToken) {
-          console.log("Token already exists:", existingToken);
-          setUserDetails((prev) => ({ ...prev, token: existingToken }));
-          return;
-        }
-
-        let token;
-        try {
-          // Try fetching the token silently
+        if (!token) {
+          console.log("Fetching new access token...");
           token = await getAccessTokenSilently({
             authorizationParams: {
               audience: "http://localhost:8000",
               scope: "openid profile email",
             },
           });
-        } catch (silentError) {
-          console.warn("Silent token fetch failed. Redirecting to login...", silentError);
 
-          // Redirect to login if silent token retrieval fails
-          await loginWithRedirect({
-            authorizationParams: {
-              audience: "http://localhost:8000",
-              scope: "openid profile email",
-            },
-          });
-          return; // Stop execution after redirect
+          localStorage.setItem("access_token", token);
+        } else {
+          console.log("Using stored token.");
         }
 
-        console.log("Token received:", token);
-        localStorage.setItem("access_token", token);
         setUserDetails((prev) => ({ ...prev, token }));
-
-        // Call mutate to register the user
-        mutate(token);
+        mutate(token); // ✅ Register user with the token
       } catch (error) {
-        console.error("Error getting token:", error);
+        console.warn("Silent authentication failed, redirecting to login...");
+        await loginWithRedirect({
+          authorizationParams: {
+            audience: "http://localhost:8000",
+            scope: "openid profile email",
+          },
+        });
       }
     };
 
     if (isAuthenticated) {
       getTokenAndRegister();
     }
-  }, [isAuthenticated, user, getAccessTokenSilently, loginWithRedirect]); 
+  }, [isAuthenticated, user?.email, userDetails?.token, getAccessTokenSilently, loginWithRedirect, mutate, setUserDetails]);
 
   return (
     <>
