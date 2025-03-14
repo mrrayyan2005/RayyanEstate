@@ -40,7 +40,7 @@ function Layout() {
         // Fetch new token if none exists
         const res = await getAccessTokenWithPopup({
           authorizationParams: {
-            audience: "http://localhost:8000",
+            audience: "https://rayyan-estate-server.vercel.app",
             scope: "openid profile email",
           },
         });
