@@ -6,28 +6,37 @@ import { getAllBookings } from "../utils/api";
 
 const useBookings = () => {
   const { userDetails, setUserDetails } = useContext(UserDetailContext);
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently } = useAuth0();
   const queryRef = useRef();
+
+  const fetchBookings = async () => {
+    if (!user?.email) return []; // Prevent unnecessary API calls
+    try {
+      const token = await getAccessTokenSilently(); // ✅ Fetch token securely
+      return await getAllBookings(user.email, token); // ✅ Use token in API call
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      return [];
+    }
+  };
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allBookings", user?.email],
-    queryFn: () => getAllBookings(user?.email, userDetails?.token),
-    enabled: !!user && !!userDetails?.token, // Fetch only if user & token exist
-    staleTime: 30000, // Cache for 30 seconds
+    queryFn: fetchBookings, // ✅ Updated function call
+    enabled: !!user, // ✅ Fetch only if user exists
+    staleTime: 30000, // Cache results for 30 seconds
     onSuccess: (data) => {
-      if (data) {
-        setUserDetails((prev) => ({ ...prev, bookings: data })); // Store in context
-      }
-    }
+      setUserDetails((prev) => ({ ...prev, bookings: data })); // ✅ Store in context
+    },
   });
 
   queryRef.current = refetch;
 
   useEffect(() => {
     if (data) {
-      setUserDetails((prev) => ({ ...prev, bookings: data })); // Update UI
+      setUserDetails((prev) => ({ ...prev, bookings: data })); // ✅ Ensure UI updates
     }
-  }, [data]);
+  }, [data, setUserDetails]);
 
   return { data, isError, isLoading, refetch };
 };
