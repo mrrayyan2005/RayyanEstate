@@ -12,8 +12,8 @@ const useBookings = () => {
   const fetchBookings = async () => {
     if (!user?.email) return []; // Prevent unnecessary API calls
     try {
-      const token = await getAccessTokenSilently(); // ✅ Fetch token securely
-      return await getAllBookings(user.email, token); // ✅ Use token in API call
+      const token = await getAccessTokenSilently(); 
+      return await getAllBookings(user.email, token); 
     } catch (error) {
       console.error("Error fetching bookings:", error);
       return [];
@@ -22,11 +22,11 @@ const useBookings = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["allBookings", user?.email],
-    queryFn: fetchBookings, // ✅ Ensuring token is always fresh
-    enabled: !!user, // ✅ Query only runs if user exists
+    queryFn: fetchBookings, //  Ensuring token is always fresh
+    enabled: !!user, 
     staleTime: 30000, // Cache results for 30 seconds
     onSuccess: (data) => {
-      setUserDetails((prev) => ({ ...prev, bookings: data })); // ✅ Store in context
+      setUserDetails((prev) => ({ ...prev, bookings: data })); 
     },
   });
 
@@ -34,7 +34,7 @@ const useBookings = () => {
 
   useEffect(() => {
     if (data) {
-      setUserDetails((prev) => ({ ...prev, bookings: data })); // ✅ Ensure UI updates
+      setUserDetails((prev) => ({ ...prev, bookings: data })); //  Ensure UI updates
     }
   }, [data, setUserDetails]);
 
