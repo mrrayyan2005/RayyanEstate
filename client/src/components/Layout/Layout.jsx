@@ -10,8 +10,8 @@ import useFavourites from "../../hooks/useFavourites";
 import useBookings from "../../hooks/useBookings";
 
 function Layout() {
-  useFavourites(); // ✅ Fetch and store user's favorite residencies
-  useBookings(); // ✅ Fetch and store user's booking data
+  useFavourites(); 
+  useBookings(); 
 
   const { isAuthenticated, user, getAccessTokenSilently, loginWithRedirect } = useAuth0();
   const { userDetails, setUserDetails } = useContext(UserDetailContext);
@@ -26,7 +26,7 @@ function Layout() {
 
   useEffect(() => {
     const getTokenAndRegister = async () => {
-      if (!user?.email || userDetails?.token) return; // ✅ Prevent unnecessary calls
+      if (!user?.email || userDetails?.token) return; 
 
       try {
         let token = localStorage.getItem("access_token");
@@ -46,7 +46,7 @@ function Layout() {
         }
 
         setUserDetails((prev) => ({ ...prev, token }));
-        mutate(token); // ✅ Register user with the token
+        mutate(token); 
       } catch (error) {
         console.warn("Silent authentication failed, redirecting to login...");
         await loginWithRedirect({
