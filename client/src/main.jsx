@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       authorizationParams={{
         redirect_uri: "https://rayyan-estate.vercel.app", // Corrected
       }}
-      audience="http://localhost:8000" // Uses environment variable
+      audience="https://rayyan-estate-server.vercel.app" || "http://localhost:8000" // Uses environment variable
       scope="openid profile email"
     >
       <MantineProvider withGlobalStyles withNormalizeCSS>
