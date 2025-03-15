@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { residencyRoute } from './routes/residencyRoute.js';
 import { userRoute } from './routes/userRoute.js';
-import jwtCheck from './auth0Config.js'; // Import the JWT middleware
 
 dotenv.config();
 
@@ -28,8 +27,11 @@ app.options('*', cors()); // Allow preflight requests for all routes
 app.use(express.json());
 app.use(cookieParser());
 
-// Use the JWT middleware for protected routes
-app.use(jwtCheck);
+// Routes that do NOT require JWT validation
+app.use('/api/residency', residencyRoute);
+
+// Routes that require JWT validation
+app.use('/api/user', userRoute);
 
 // Error handling for invalid tokens
 app.use((err, req, res, next) => {
@@ -40,10 +42,6 @@ app.use((err, req, res, next) => {
     next(err);
   }
 });
-
-// Routes
-app.use('/api/user', userRoute);
-app.use('/api/residency', residencyRoute);
 
 // Start the server
 app.listen(PORT, () => {
