@@ -13,7 +13,7 @@ function Layout() {
   useFavourites();
   useBookings();
 
-  const { isAuthenticated, user, getAccessTokenWithPopup } = useAuth0();
+  const { isAuthenticated, user, getAccessTokenWithPopup, getAccessTokenSilently } = useAuth0();
   const { setUserDetails } = useContext(UserDetailContext);
 
   const { mutate } = useMutation({
@@ -31,33 +31,41 @@ function Layout() {
 
         console.log("Fetching access token...");
 
-        // Check if token already exists in localStorage
-        const existingToken = localStorage.getItem("access_token");
-        if (existingToken) {
-          console.log("Token already exists:", existingToken);
-          setUserDetails((prev) => ({ ...prev, token: existingToken }));
-          return; // Exit function to prevent pop-up loop
+        let token = null;
+
+        try {
+          // 🔹 Try to get token silently first
+          token = await getAccessTokenSilently({
+            authorizationParams: {
+              audience: "https://rayyan-estate-server.vercel.app",
+              scope: "openid profile email",
+            },
+            cacheMode: "off", // 🔹 Force fresh token every time
+          });
+        } catch (silentError) {
+          console.warn("Silent auth failed, using popup:", silentError);
+
+          // 🔹 If silent auth fails, use popup
+          token = await getAccessTokenWithPopup({
+            authorizationParams: {
+              audience: "https://rayyan-estate-server.vercel.app",
+              scope: "openid profile email",
+            },
+            cacheMode: "off", // 🔹 Force fresh token every time
+          });
         }
 
-        // Fetch new token if none exists
-        const res = await getAccessTokenWithPopup({
-          authorizationParams: {
-            audience: "https://rayyan-estate-server.vercel.app",
-            scope: "openid profile email",
-          },
-        });
-
-        if (!res) {
-          console.error("No token received from getAccessTokenWithPopup");
+        if (!token) {
+          console.error("No token received from Auth0");
           return;
         }
 
-        console.log("Token received:", res);
-        localStorage.setItem("access_token", res);
-        setUserDetails((prev) => ({ ...prev, token: res }));
+        console.log("Token received:", token);
+        localStorage.setItem("access_token", token);
+        setUserDetails((prev) => ({ ...prev, token }));
 
-        // Call mutate to register the user (ensure email exists)
-        mutate(res);
+        // Register user with fresh token
+        mutate(token);
       } catch (error) {
         console.error("Error getting token:", error);
       }
@@ -66,13 +74,13 @@ function Layout() {
     if (isAuthenticated && user?.email) {
       getTokenAndRegister();
     }
-  }, [isAuthenticated, user, mutate]);  // Added `mutate` to dependencies
+  }, [isAuthenticated, user, mutate]);
 
   return (
     <>
       <div style={{ overflow: "hidden" }}>
         <Header />
-        <Outlet /> {/* This will render the Website component inside Layout */}
+        <Outlet /> 
       </div>
       <Footer />
     </>
