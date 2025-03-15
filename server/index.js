@@ -4,13 +4,16 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { residencyRoute } from './routes/residencyRoute.js';
 import { userRoute } from './routes/userRoute.js';
-dotenv.config()
+import jwtCheck from './auth0Config.js'; // Import the JWT middleware
 
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.use(express.json())
-app.use(cookieParser())
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: 'https://rayyan-estate.vercel.app', // Allow requests from frontend
@@ -20,10 +23,24 @@ app.use(
   })
 );
 
+// Use the JWT middleware for protected routes
+app.use(jwtCheck);
 
-
-app.listen(PORT, ()=> {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// Error handling for invalid tokens
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    console.error('Invalid token:', err.message); // Log the error
+    res.status(401).json({ error: 'Invalid token' });
+  } else {
+    next(err);
+  }
 });
-app.use('/api/user', userRoute)
-app.use("/api/residency",residencyRoute)
+
+// Routes
+app.use('/api/user', userRoute);
+app.use('/api/residency', residencyRoute);
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
