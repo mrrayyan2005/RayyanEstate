@@ -11,9 +11,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
+// CORS configuration
 app.use(
   cors({
     origin: 'https://rayyan-estate.vercel.app', // Allow requests from frontend
@@ -22,6 +20,10 @@ app.use(
     credentials: true, // Allow credentials (e.g., cookies, authorization headers)
   })
 );
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
 // Use the JWT middleware for protected routes
 app.use(jwtCheck);
