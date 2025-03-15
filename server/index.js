@@ -11,14 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json())
 app.use(cookieParser())
-const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_LOCAL];
-
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(
+  cors({
+    origin: 'https://rayyan-estate.vercel.app', // Allow requests from frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    credentials: true, // Allow credentials (e.g., cookies, authorization headers)
+  })
+);
 
 
 
