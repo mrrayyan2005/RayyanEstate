@@ -11,12 +11,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json())
 app.use(cookieParser())
+const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_LOCAL];
+
 app.use(cors({
-    origin: ["http://localhost:8000", "https://rayyan-estate.vercel.app"], // Allow frontend
-    credentials: true,  // Allow cookies & authentication headers
+    origin: allowedOrigins,
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 
 app.listen(PORT, ()=> {
