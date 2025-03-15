@@ -34,13 +34,12 @@ function Layout() {
         let token = null;
 
         try {
-          // 🔹 Try to get token silently first
+          // 🔹 Try to get token silently first (with caching)
           token = await getAccessTokenSilently({
             authorizationParams: {
               audience: "https://rayyan-estate-server.vercel.app",
               scope: "openid profile email",
             },
-            cacheMode: "off", // 🔹 Force fresh token every time
           });
         } catch (silentError) {
           console.warn("Silent auth failed, using popup:", silentError);
@@ -51,7 +50,6 @@ function Layout() {
               audience: "https://rayyan-estate-server.vercel.app",
               scope: "openid profile email",
             },
-            cacheMode: "off", // 🔹 Force fresh token every time
           });
         }
 
