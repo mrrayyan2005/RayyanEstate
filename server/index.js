@@ -21,6 +21,9 @@ app.use(
   })
 );
 
+// Handle preflight requests
+app.options('*', cors()); // Allow preflight requests for all routes
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
